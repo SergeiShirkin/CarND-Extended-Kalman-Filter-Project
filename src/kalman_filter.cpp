@@ -25,9 +25,9 @@ void KalmanFilter::Predict() {
   TODO:
     * predict the state
   */
-  x_ = F_* x_;
+  x_ = F_ * x_;
   MatrixXd Ft = F_.transpose();
-  P_ = F_*P_*Ft + Q_;
+  P_ = F_ *P_*Ft + Q_;
 
 }
 
@@ -36,13 +36,14 @@ void KalmanFilter::Update(const VectorXd &z) {
   TODO:
     * update the state by using Kalman Filter equations
   */
+  
   VectorXd y = z - H_ * x_;
   MatrixXd Ht = H_.transpose();
   MatrixXd S = H_ * P_ * Ht + R_;
   MatrixXd Si = S.inverse();
   MatrixXd K = P_ * Ht * Si;
 
-  // new state
+  //new estimate
   x_ = x_ + (K * y);
   long x_size = x_.size();
   MatrixXd I = MatrixXd::Identity(x_size, x_size);
@@ -65,21 +66,33 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   float theta = atan2(py, px);
 
   float ro_dot;
-
-  if  (fabs(rho) < 0.0001)
+  
+  if (fabs(rho) < 0.0001)
   {
     ro_dot = 0;
-  } 
-  else 
+  }
+  else
   {
-    ro_dot = (px*vx + py*vy) / rho;
+    ro_dot= (px * vx + py * vy)/rho;
   }
 
   VectorXd z_pred = VectorXd(3);
   z_pred << rho, theta, ro_dot;
 
   VectorXd y = z - z_pred;
-
+  
+  if(y(1) > PI_)
+  {
+    y(1) -= 2*PI_;
+  }
+  else if(y(1) < -PI_)
+  {
+    y(1) += 2*PI_;
+  }
+  
+  cout << "y = " << y << endl;
+  cout << "z = " << z << endl;
+  cout << "z_pred = " << z_pred << endl;
 
   MatrixXd Ht = H_.transpose();
   MatrixXd S = H_ * P_ * Ht + R_;
@@ -92,6 +105,6 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   long x_size = x_.size();
   MatrixXd I = MatrixXd::Identity(x_size, x_size);
 
-  P_ = (I - K * H_) * P_;
+  P_ = (I - K * H_) * P_;  
 
 }

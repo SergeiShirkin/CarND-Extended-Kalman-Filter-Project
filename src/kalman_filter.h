@@ -11,7 +11,7 @@ public:
   // state covariance matrix
   Eigen::MatrixXd P_;
 
-  // state transition matrix
+  // state transistion matrix
   Eigen::MatrixXd F_;
 
   // process covariance matrix
@@ -22,6 +22,9 @@ public:
 
   // measurement covariance matrix
   Eigen::MatrixXd R_;
+
+  //for radar measurements
+  float PI_;
 
   /**
    * Constructor
